@@ -24,7 +24,7 @@ type Information struct {
 
 func main() {
 	var tag string
-	tag = "My-Go-Agent"
+	tag = "CSC482GoAgent"
 	
 	// Loggly Customer Token
 	os.Setenv("LOGGLY_TOKEN", "7530acc8-7398-4ebd-9d2c-ce0730d87190")
@@ -32,17 +32,17 @@ func main() {
 	// Instantiate the client
 	client := loggly.New(tag)
 	
-	resp, err := http.Get("https://api.ratesapi.io/api/latest")	
+	resp, err := http.Get("https://api.ratesapi.io/api/latest?base=USD")	
 	if err != nil {
 		client.Send("Error", "HTTP request to Rates API failed. No echo.")
-	}
-	else {
+	} else {
 		client.Send("info", "HTTP request success. No echo.")
 	}
+	// Close the response body
 	defer resp.Body.Close()
-	
+      	
 	// Read contents from body of request.
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		client.Send("Error", "Could not read JSON from body. No echo.")
 	}
@@ -57,17 +57,17 @@ func main() {
 	
 	
 	// Display the formatted output to the console.
-	fmt.Println("Currency exchange rates for date: " + info.Date)
+	fmt.Println("Currency exchange rates for: " + info.Date)
 	fmt.Println("Base currency: " + info.Base)
 	fmt.Println("Exchange rates follow:")
-	fmt.Print("US Dollar: ")
+	fmt.Print("USD: ")
 	fmt.Println(info.Rates.USD)
-	fmt.Print("Great Britain Pound: ")
+	fmt.Print("GBP: ")
 	fmt.Println(info.Rates.GBP)
-	fmt.Print("Canadian Dollar: ")
+	fmt.Print("CAD: ")
 	fmt.Println(info.Rates.CAD)
-	fmt.Print("Indian Rupee: ")
+	fmt.Print("INR: ")
 	fmt.Println(info.Rates.INR)
-	fmt.Print("Austrailian Dollar: ")
+	fmt.Print("AUD: ")
 	fmt.Println(info.Rates.AUD)
 }
