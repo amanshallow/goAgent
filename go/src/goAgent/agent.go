@@ -42,7 +42,7 @@ func main() {
 	defer resp.Body.Close()
       	
 	// Read contents from body of request.
-	body, err = ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		client.Send("Error", "Could not read JSON from body. No echo.")
 	}
