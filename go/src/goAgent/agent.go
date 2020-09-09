@@ -45,6 +45,8 @@ func main() {
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		client.Send("Error", "Could not read JSON from body. No echo.")
+	} else {
+		client.Send("info", "Successfully read JSON from body. No echo.")
 	}
 	
 	// Parse the JSON and copy into struct
@@ -52,7 +54,9 @@ func main() {
 	err = json.Unmarshal(body, &info)
 	
 	if err != nil {
-		client.Send("Error", "Could not parse JSON from body into Information struct.")
+		client.Send("Error", "Could not parse JSON from body into Information struct. No echo.")
+	} else {
+		client.Send("info", "Sucessfull unmarshal of JSON from response body. No echo.")
 	}
 	
 	
