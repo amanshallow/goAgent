@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
+	"strconv"
 	loggly "github.com/jamespearly/loggly"
 )
 
@@ -36,8 +37,10 @@ func main() {
 	if err != nil {
 		client.Send("Error", "HTTP request to Rates API failed. No echo.")
 	} else {
-		client.Send("info", "HTTP request success. No echo.")
+		
+		client.Send("info", "HTTP request success. No echo. Status: " + resp.Status) 
 	}
+
 	// Close the response body
 	defer resp.Body.Close()
       	
@@ -46,9 +49,9 @@ func main() {
 	if err != nil {
 		client.Send("Error", "Could not read JSON from body. No echo.")
 	} else {
-		client.Send("info", "Successfully read JSON from body. No echo.")
+		s := strconv.Itoa(len(body))
+		client.Send("info", "Successfully read JSON from body. No echo. Body size: " + s + " bytes.")
 	}
-	
 	// Parse the JSON and copy into struct
 	var info Information
 	err = json.Unmarshal(body, &info)
