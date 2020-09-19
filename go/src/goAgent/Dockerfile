@@ -1,22 +1,22 @@
 ## We specify the base image we need for our
 ## go application
-FROM golang:1.12.0-alpine3.9
+FROM golang:latest
 ## We create an /app directory within our
 ## image that will hold our application source
 ## files
-RUN mkdir /app
+RUN mkdir /agent
 ## We copy everything in the root directory
 ## into our /app directory
-ADD . /app
+ADD . /agent
 ## We specify that we now wish to execute 
 ## any further commands inside our /app
 ## directory
-WORKDIR /app
+WORKDIR /agent
 ## Add this go mod download command to pull in any dependencies.
-RUN go mod download
+# RUN go mod download
 ## we run go build to compile the binary
 ## executable of our Go program
-RUN go build -o agent .
+RUN go build -o goAgent .
 ## Our start command which kicks off
 ## our newly created binary executable
-CMD ["/app/agent"]
+ENTRYPOINT ["/agent/goAgent"]
