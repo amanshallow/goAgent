@@ -1,7 +1,6 @@
 package main
 
 import (
-	"os"
 	"fmt"
 	"net/http"
 	"io/ioutil"
@@ -26,9 +25,6 @@ type Information struct {
 func main() {
 	var tag string
 	tag = "CSC482GoAgent"
-	
-	// Loggly Customer Token
-	os.Setenv("LOGGLY_TOKEN", "7530acc8-7398-4ebd-9d2c-ce0730d87190")
 	
 	// Instantiate the client
 	client := loggly.New(tag)
