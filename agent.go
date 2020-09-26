@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"strconv"
+	"time"
+	"os"
 	loggly "github.com/jamespearly/loggly"
 )
 
@@ -22,10 +24,54 @@ type Information struct {
 	} `json:"rates"`
 }
 
+
+func worker(done chan bool) {
+	// Go routine will fire once every 60 seconds.
+	varDelay := os.Getenv("DELAY")
+	timeAmt := time.Duration(0)
+	
+	if varDelay != "" {
+		intDelay, err := strconv.Atoi(varDelay)
+		if err != nil {
+			// Something went wrong with conversion.
+			fmt.Println("Error:", err)
+			fmt.Println("An error has occured...agent will default to polliing every 60 seconds")
+			duration := time.Duration(60) * time.Second
+			timeAmt = duration
+		} else {
+			fmt.Println("Current polling rate:", intDelay, "seconds")
+			duration := time.Duration(intDelay) * time.Second
+			timeAmt = duration
+		}
+	} else {
+		fmt.Println("No time interval specified...polling rate is 60 seconds.")
+		duration := time.Duration(60) * time.Second
+		timeAmt = duration
+	}
+	
+	tick := time.NewTicker(timeAmt)
+	// Infinite loop
+	for range tick.C{
+		fmt.Println("Firing routine...")
+		t := <-tick.C
+		fmt.Println("Tick at", t)
+		fmt.Println("-----------------------------------------")
+		main()
+		tick.Stop() // Note: These will never be used!
+		done <- true 
+	}
+}
+
 func main() {
+	// Creating a go routine and a channel.
+	done := make(chan bool, 1)
+	defer close (done)
+	go worker(done)
+	
+	// Tag for Loggly.
 	var tag string
 	tag = "CSC482GoAgent"
-	
+
 	// Instantiate the client
 	client := loggly.New(tag)
 	
@@ -57,8 +103,7 @@ func main() {
 	} else {
 		client.Send("info", "Sucessfull unmarshal of JSON from response body. No echo.")
 	}
-	
-	
+		     
 	// Display the formatted output to the console.
 	fmt.Println("Currency exchange rates for: " + info.Date)
 	fmt.Println("Base currency: " + info.Base)
@@ -73,4 +118,8 @@ func main() {
 	fmt.Println(info.Rates.INR)
 	fmt.Print("AUD: ")
 	fmt.Println(info.Rates.AUD)
+	fmt.Print("\n")
+	fmt.Print("\n")
+	
+	<-done
 }
