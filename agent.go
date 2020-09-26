@@ -24,9 +24,8 @@ type Information struct {
 	} `json:"rates"`
 }
 
-
-func worker(done chan bool) {
-	// Go routine will fire once every 60 seconds.
+func worker(done chan bool, client *loggly.ClientType) {
+	// Go routine will fire once every [user-defined] or 300 seconds.
 	varDelay := os.Getenv("DELAY")
 	timeAmt := time.Duration(0)
 	
@@ -34,26 +33,31 @@ func worker(done chan bool) {
 		intDelay, err := strconv.Atoi(varDelay)
 		if err != nil {
 			// Something went wrong with conversion.
-			fmt.Println("Error:", err)
-			fmt.Println("An error has occured...agent will default to polliing every 60 seconds")
-			duration := time.Duration(60) * time.Second
+			client.Send("error", "Cannot convert string polling rate to int. Echo.")
+			client.Send("info", "Current polling rate: 300s. Echo.")
+			fmt.Println("Incorrect input...Reverting to 300s polling rate")
+			duration := time.Duration(300) * time.Second
 			timeAmt = duration
 		} else {
-			fmt.Println("Current polling rate:", intDelay, "seconds")
+			fmt.Println("Current polling rate:", intDelay, "seconds.")
+			client.Send("info", "Polling rate:" + varDelay + "s. No echo.")
 			duration := time.Duration(intDelay) * time.Second
 			timeAmt = duration
 		}
 	} else {
-		fmt.Println("No time interval specified...polling rate is 60 seconds.")
-		duration := time.Duration(60) * time.Second
+		// Default polling rate
+		fmt.Println("Current polling rate: 300 seconds.")
+		client.Send("info", "No delay specified. Polling rate is 300s. No echo.")
+		duration := time.Duration(300) * time.Second
 		timeAmt = duration
 	}
 	
-	tick := time.NewTicker(timeAmt)
+	tick := time.NewTicker(timeAmt / 2)
+	
 	// Infinite loop
 	for range tick.C{
-		fmt.Println("Firing routine...")
 		t := <-tick.C
+		fmt.Println("Firing routine...")
 		fmt.Println("Tick at", t)
 		fmt.Println("-----------------------------------------")
 		main()
@@ -62,11 +66,11 @@ func worker(done chan bool) {
 	}
 }
 
+// Sends an HTTP request to RatesAPI, parses JSON and displays. 
 func main() {
 	// Creating a go routine and a channel.
 	done := make(chan bool, 1)
 	defer close (done)
-	go worker(done)
 	
 	// Tag for Loggly.
 	var tag string
@@ -75,9 +79,11 @@ func main() {
 	// Instantiate the client
 	client := loggly.New(tag)
 	
+	go worker(done, client)
+	
 	resp, err := http.Get("https://api.ratesapi.io/api/latest?base=USD")	
 	if err != nil {
-		client.Send("Error", "HTTP request to Rates API failed. No echo.")
+		client.Send("error", "HTTP request to Rates API failed. No echo.")
 	} else {
 		
 		client.Send("info", "HTTP request success. No echo. Status: " + resp.Status) 
@@ -89,7 +95,7 @@ func main() {
 	// Read contents from body of request.
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		client.Send("Error", "Could not read JSON from body. No echo.")
+		client.Send("error", "Could not read JSON from body. No echo.")
 	} else {
 		s := strconv.Itoa(len(body))
 		client.Send("info", "Successfully read JSON from body. No echo. Body size: " + s + " bytes.")
@@ -99,7 +105,7 @@ func main() {
 	err = json.Unmarshal(body, &info)
 	
 	if err != nil {
-		client.Send("Error", "Could not parse JSON from body into Information struct. No echo.")
+		client.Send("error", "Could not parse JSON from body into Information struct. No echo.")
 	} else {
 		client.Send("info", "Sucessfull unmarshal of JSON from response body. No echo.")
 	}
