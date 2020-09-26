@@ -6,10 +6,9 @@ Recommended Docker build and run procedure (clutterless):
 
 	- $ docker build -t agent --rm --quiet .	 					// Builds quietly 
 	- $ docker run --env-file env.list -d --rm --name myagent agent				// Runs detached, auto remove when stopped.
-	
-	**OR**
+				**OR**
 	- $ docker run --env DELAY=10 -d --rm --name myagent agent				// 10 second polling rate, auto remove when stopped.
-	**OR**
+				**OR**
 	- $ docker run --env-file env.list --env DELAY=10 -d --rm --name myagent agent		// Loggly token in env list file, delay in CMDline.
 	- $ docker logs myagent -f								// Live container output
 	
@@ -22,7 +21,6 @@ Process for removing container and images:
 	
 Changelog:
 -------------------------------------------------------------
-
 [9/25/20]: 
 
 	- Agent now includes the ability to run autonomously at the polling rate of 60 seconds. Meaning the agent will fetch information every 1 minute from RatesAPI. 
@@ -34,4 +32,4 @@ Changelog:
 	- Fixed: Error level messages for loggly not working properly.
 	- Tested: All functions, loggly messages, errors and such.
 	- Updated: Set default polling rate to 300 seconds or 5 minutes (env.list).
-	- Updated README.md
+	- Updated: README.md
