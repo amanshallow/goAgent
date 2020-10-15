@@ -33,3 +33,11 @@ Changelog:
 	- Tested: All functions, loggly messages, errors and such.
 	- Updated: Set default polling rate to 300 seconds or 5 minutes (env.list).
 	- Updated: README.md
+	
+[10/14/20]: 
+
+	- Implemented: Loggly success and error messages for DynamoDB.
+	- Implemented: DynamoDB functionality to push data recieved from RatesAPI.
+	- Tested: DynamoDB success and failure inside AWS console and verfied data was recieved properly.
+	- Tested: Loggly messages with DynamoDB and existing functionality.
+	- Updated: README.md
