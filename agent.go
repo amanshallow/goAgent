@@ -8,14 +8,18 @@ import (
 	"strconv"
 	"time"
 	"os"
-	loggly "github.com/jamespearly/loggly"
+	"github.com/aws/aws-sdk-go/aws"					// AWS Dynamo DB
+    	"github.com/aws/aws-sdk-go/aws/session"
+    	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	loggly "github.com/jamespearly/loggly"				// Loggly
 )
 
 type Information struct {
-	Base string `json:"base"`
 	Date string `json:"date"`
+	Base string `json:"base"`
 	
-	Rates struct {
+	Currency struct {
 		USD float64 `json:"USD"`
 		GBP float64 `json:"GBP"`
 		INR float64 `json:"INR"`
@@ -79,7 +83,17 @@ func main() {
 	// Instantiate the client
 	client := loggly.New(tag)
 	
+	// Run worker as a Go Routine.
 	go worker(done, client)
+	
+	// Create an AWS session for US East 1.
+	sess := session.Must(session.NewSession(&aws.Config{
+		Region:   aws.String("us-east-1"),
+		Endpoint: aws.String("https://dynamodb.us-east-1.amazonaws.com"),
+	}))
+
+	// Create a DynamoDB instance
+	db := dynamodb.New(sess)
 	
 	resp, err := http.Get("https://api.ratesapi.io/api/latest?base=USD")	
 	if err != nil {
@@ -109,21 +123,36 @@ func main() {
 	} else {
 		client.Send("info", "Sucessfull unmarshal of JSON from response body. No echo.")
 	}
-		     
+	
+	// Marshal data from Information struct into AWS attribute value.
+	infoAVmap, err := dynamodbattribute.MarshalMap(info)
+	if err != nil {
+		client.Send("error", "Could not marshal information struct into attribute value map. No echo.")
+	}
+	
+	// Create the api parameters
+	params := &dynamodb.PutItemInput {
+		TableName: aws.String("asingh2-rates"),
+		Item: infoAVmap,
+	}
+	
+	// Push or Put the item into the table, no error checking here!
+	db.PutItem(params)
+	
 	// Display the formatted output to the console.
 	fmt.Println("Currency exchange rates for: " + info.Date)
 	fmt.Println("Base currency: " + info.Base)
 	fmt.Println("Exchange rates follow:")
 	fmt.Print("USD: ")
-	fmt.Println(info.Rates.USD)
+	fmt.Println(info.Currency.USD)
 	fmt.Print("GBP: ")
-	fmt.Println(info.Rates.GBP)
+	fmt.Println(info.Currency.GBP)
 	fmt.Print("CAD: ")
-	fmt.Println(info.Rates.CAD)
+	fmt.Println(info.Currency.CAD)
 	fmt.Print("INR: ")
-	fmt.Println(info.Rates.INR)
+	fmt.Println(info.Currency.INR)
 	fmt.Print("AUD: ")
-	fmt.Println(info.Rates.AUD)
+	fmt.Println(info.Currency.AUD)
 	fmt.Print("\n")
 	fmt.Print("\n")
 	
