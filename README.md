@@ -41,3 +41,11 @@ Changelog:
 	- Tested: DynamoDB success and failure inside AWS console and verfied data was recieved properly.
 	- Tested: Loggly messages with DynamoDB and existing functionality.
 	- Updated: README.md
+	
+[10/22/20]:
+	
+	- Implemented: DynamoDB functionality to put items into a given table.
+	- Implemented: Ability to fetch data from Rates API starting from a given time period.
+	- Updated: Dockerfile to include multi-stage build process to shrink the size of final Docker image to a few MBs.
+	- Updated: Polling delay in env.list
+	- Updated: Changelog in README.md
