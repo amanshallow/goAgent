@@ -22,7 +22,7 @@ Process for removing container and images:
 Process for saving Docker image as .tar file and loading into Docker.
 	
 	- $ docker save -o /Documents/agent.tar agent:latest		// Saves the agent image in Documents directory as agent.tar
-	- $ docker load -i /Documents/agent.tar			// Loads the agent.tar from Documents directory into Docker.
+	- $ docker load -i /Documents/agent.tar				// Loads the agent.tar from Documents directory into Docker.
 	
 Changelog:
 -------------------------------------------------------------
