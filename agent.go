@@ -28,6 +28,15 @@ type Information struct {
 	} `json:"rates"`
 }
 
+// Necessary to historical data.
+/*
+var globalIndex = 1
+var currentMonth int
+var currentDate  int
+var currentYear  int
+var fullDate 	  string*/
+
+// Decides the agent's polling interval.
 func worker(done chan bool, client *loggly.ClientType) {
 	// Go routine will fire once every [user-defined] or 300 seconds.
 	varDelay := os.Getenv("DELAY")
@@ -83,6 +92,32 @@ func main() {
 	// Instantiate the client
 	client := loggly.New(tag)
 	
+	// Algorithm to fetch historical data when needed.
+   /*   if globalIndex == 1 {
+		currentMonth = 10
+		currentDate  = 21
+		currentYear  = 2019
+		fullDate     = ""
+		globalIndex++
+	}
+	
+	if currentMonth == 12 && currentDate == 31{
+		currentMonth = 1
+	} else if currentDate == 31 {
+		currentMonth++;
+	}
+	if currentDate == 31 {
+		currentDate = 1
+	} else {
+		currentDate++
+	}
+	if currentYear == 2019 && currentDate == 31 && currentMonth == 12 {
+		currentYear = 2020
+	}
+	fullDate = strconv.Itoa(currentYear) + "-" + strconv.Itoa(currentMonth) + "-" + strconv.Itoa(currentDate)
+	var apiString string = "https://api.ratesapi.io/api/" + fullDate + "?base=USD" 
+	resp, err := http.Get(apiString)*/
+	
 	// Run worker as a Go Routine.
 	go worker(done, client)
 	
@@ -114,6 +149,7 @@ func main() {
 		s := strconv.Itoa(len(body))
 		client.Send("info", "Successfully read JSON from body. No echo. Body size: " + s + " bytes.")
 	}
+	
 	// Parse the JSON and copy into struct
 	var info Information
 	err = json.Unmarshal(body, &info)
