@@ -54,3 +54,11 @@ Changelog:
 	- Updated: Dockerfile to include multi-stage build process to shrink the size of final Docker image to a few MBs.
 	- Updated: Polling delay in env.list
 	- Updated: Changelog in README.md
+	
+[12/02/20]:
+
+	- Implemented: DynamoDB error and success messages are now sent to Loggly.
+	- Tested: DyanamoDB error and sucess messages inside Loggly.
+	- Tested: DyanmoDB was recieving data from agent. 
+	- Updated: Formatting using "go fmt" command.
+	- Updated: Changelog in README.md
