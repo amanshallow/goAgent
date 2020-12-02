@@ -173,7 +173,13 @@ func main() {
 	}
 
 	// Push or Put the item into the table, no error checking here!
-	db.PutItem(params)
+	response, err := db.PutItem(params)
+	
+	if err != nil {
+		client.Send("error", "Dynamo DB error: " + err + ". No echo.")
+	} else {
+		client.Send("info", response + ". No echo."
+	}
 
 	// Display the formatted output to the console.
 	fmt.Println("Currency exchange rates for: " + info.Date)
