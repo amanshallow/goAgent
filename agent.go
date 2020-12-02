@@ -173,12 +173,12 @@ func main() {
 	}
 
 	// Push or Put the item into the table, no error checking here!
-	response, err := db.PutItem(params)
+	_, oops := db.PutItem(params)
 	
-	if err != nil {
-		client.Send("error", "Dynamo DB error: " + err + ". No echo.")
+	if oops != nil {
+		client.Send("error", "Dynamo DB error: " + oops.Error() + " .No echo.")
 	} else {
-		client.Send("info", response + ". No echo."
+		client.Send("info", "Successfully pushed data to DynamoDB. No echo.")
 	}
 
 	// Display the formatted output to the console.
