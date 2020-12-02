@@ -134,7 +134,6 @@ func main() {
 	if err != nil {
 		client.Send("error", "HTTP request to Rates API failed. No echo.")
 	} else {
-
 		client.Send("info", "HTTP request success. No echo. Status: "+resp.Status)
 	}
 
@@ -174,9 +173,9 @@ func main() {
 
 	// Push or Put the item into the table, no error checking here!
 	_, oops := db.PutItem(params)
-	
+
 	if oops != nil {
-		client.Send("error", "Dynamo DB error: " + oops.Error() + " .No echo.")
+		client.Send("error", "Dynamo DB error: "+oops.Error()+" .No echo.")
 	} else {
 		client.Send("info", "Successfully pushed data to DynamoDB. No echo.")
 	}
